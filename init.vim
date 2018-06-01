@@ -34,6 +34,9 @@ Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-vinegar'
 Plug 'jonathanfilip/vim-lucius'
 Plug 'editorconfig/editorconfig-vim'
+Plug 'rizzatti/dash.vim'
+Plug 'mattn/gist-vim'
+Plug 'fatih/vim-go'
 
 call plug#end()
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
@@ -153,15 +156,22 @@ function s:setupMarkup()
   call s:setupWrap()
 endfunction
 
+let g:neomake_ruby_enabled_makers = [ 'mri', 'rubocop' ]
 let g:neomake_ruby_rubocop_exe = 'chefstyle'
 
-au BufRead,BufNewFile {Berksfile,Gemfile,Rakefile,Vagrantfile,Thorfile,config.run} set ft=ruby
+au BufRead,BufNewFile {Gemfile,Rakefile,Vagrantfile,Thorfile,config.run} set ft=ruby
 au BufRead,BufNewFile *.{markdown,md} call s:setupMarkup()
 au BufRead,BufNewFile *.hjs set ft=handlebars
 au BufRead,BufNewFile *.txt call s:setupWrap()
 au FileType latex,tex,md,markdown setlocal spell
-autocmd! BufWritePost * Neomake
+au BufRead,BufNewFile */.zsh/* set ft=zsh
 
+au BufRead,BufNewFile {Berksfile,metadata.rb,recipes/*.rb,resources/*.rb,libraries/*.rb,spec/unit/recipes/*.rb} set ft=ruby.chef
+au FileType ruby.chef let b:neomake_ruby_rubocop_exe = 'cookstyle'
+
+let g:go_fmt_command = "goimports"
+
+call neomake#configure#automake('rw', 1000)
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['rustup', 'run', 'nightly', 'rls'],
     \ }
@@ -190,3 +200,5 @@ command! -bang -nargs=* Rg
   \   <bang>0 ? fzf#vim#with_preview('up:60%')
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
   \   <bang>0)
+
+map <silent> <leader>d <Plug>DashSearch
